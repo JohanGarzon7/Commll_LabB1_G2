@@ -13,10 +13,11 @@ from gnuradio import qtgui
 from gnuradio import analog
 from gnuradio import blocks
 import numpy
+from gnuradio import fft
+from gnuradio.fft import window
 from gnuradio import filter
 from gnuradio.filter import firdes
 from gnuradio import gr
-from gnuradio.fft import window
 import sys
 import signal
 from PyQt5 import Qt
@@ -24,6 +25,7 @@ from argparse import ArgumentParser
 from gnuradio.eng_arg import eng_float, intx
 from gnuradio import eng_notation
 import MPSK_epy_block_0 as epy_block_0  # embedded python block
+import MPSK_epy_block_0_1 as epy_block_0_1  # embedded python block
 import math
 import sip
 
@@ -76,6 +78,45 @@ class MPSK(gr.top_block, Qt.QWidget):
         # Blocks
         ##################################################
 
+        self.qtgui_vector_sink_f_1 = qtgui.vector_sink_f(
+            1024,
+            0,
+            1.0,
+            "x-Axis",
+            "y-Axis",
+            "",
+            1, # Number of inputs
+            None # parent
+        )
+        self.qtgui_vector_sink_f_1.set_update_time(0.10)
+        self.qtgui_vector_sink_f_1.set_y_axis((-140), 10)
+        self.qtgui_vector_sink_f_1.enable_autoscale(False)
+        self.qtgui_vector_sink_f_1.enable_grid(False)
+        self.qtgui_vector_sink_f_1.set_x_axis_units("")
+        self.qtgui_vector_sink_f_1.set_y_axis_units("")
+        self.qtgui_vector_sink_f_1.set_ref_level(0)
+
+
+        labels = ['', '', '', '', '',
+            '', '', '', '', '']
+        widths = [1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1]
+        colors = ["blue", "red", "green", "black", "cyan",
+            "magenta", "yellow", "dark red", "dark green", "dark blue"]
+        alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
+            1.0, 1.0, 1.0, 1.0, 1.0]
+
+        for i in range(1):
+            if len(labels[i]) == 0:
+                self.qtgui_vector_sink_f_1.set_line_label(i, "Data {0}".format(i))
+            else:
+                self.qtgui_vector_sink_f_1.set_line_label(i, labels[i])
+            self.qtgui_vector_sink_f_1.set_line_width(i, widths[i])
+            self.qtgui_vector_sink_f_1.set_line_color(i, colors[i])
+            self.qtgui_vector_sink_f_1.set_line_alpha(i, alphas[i])
+
+        self._qtgui_vector_sink_f_1_win = sip.wrapinstance(self.qtgui_vector_sink_f_1.qwidget(), Qt.QWidget)
+        self.top_layout.addWidget(self._qtgui_vector_sink_f_1_win)
         self.qtgui_time_sink_x_0_0_0_0_0 = qtgui.time_sink_c(
             (int(32*Sps/Nbps)), #size
             samp_rate, #samp_rate
@@ -407,14 +448,31 @@ class MPSK(gr.top_block, Qt.QWidget):
         self.top_layout.addWidget(self._qtgui_const_sink_x_0_win)
         self.interp_fir_filter_xxx_0 = filter.interp_fir_filter_ccc(Sps, h)
         self.interp_fir_filter_xxx_0.declare_sample_delay(0)
+        self.fft_vxx_0 = fft.fft_vcc(1024, True, [1.0]*1024, True, 1)
+        self.epy_block_0_1 = epy_block_0_1.blk(N=1024)
         self.epy_block_0 = epy_block_0.blk(example_param=1.0)
+        self.blocks_stream_to_vector_0 = blocks.stream_to_vector(gr.sizeof_gr_complex*1, 1024)
         self.blocks_repack_bits_bb_0 = blocks.repack_bits_bb(1, Nbps, "", False, gr.GR_LSB_FIRST)
+        self.blocks_multiply_const_vxx_1 = blocks.multiply_const_vff([1/(1024*samp_rate)]*1024)
         self.blocks_multiply_const_vxx_0 = blocks.multiply_const_ff((2*math.pi/M))
+        self.blocks_complex_to_mag_squared_0 = blocks.complex_to_mag_squared(1024)
         self.blocks_char_to_float_0_0_0 = blocks.char_to_float(1, 1)
         self.blocks_char_to_float_0_0 = blocks.char_to_float(1, 1)
         self.blocks_char_to_float_0 = blocks.char_to_float(1, 1)
         self.analog_random_source_x_0 = blocks.vector_source_b(list(map(int, numpy.random.randint(0, 2, 1000))), True)
         self.analog_const_source_x_0 = analog.sig_source_f(0, analog.GR_CONST_WAVE, 0, 0, 1.)
+        self.Menu = Qt.QTabWidget()
+        self.Menu_widget_0 = Qt.QWidget()
+        self.Menu_layout_0 = Qt.QBoxLayout(Qt.QBoxLayout.TopToBottom, self.Menu_widget_0)
+        self.Menu_grid_layout_0 = Qt.QGridLayout()
+        self.Menu_layout_0.addLayout(self.Menu_grid_layout_0)
+        self.Menu.addTab(self.Menu_widget_0, 'Time & Freq')
+        self.Menu_widget_1 = Qt.QWidget()
+        self.Menu_layout_1 = Qt.QBoxLayout(Qt.QBoxLayout.TopToBottom, self.Menu_widget_1)
+        self.Menu_grid_layout_1 = Qt.QGridLayout()
+        self.Menu_layout_1.addLayout(self.Menu_grid_layout_1)
+        self.Menu.addTab(self.Menu_widget_1, 'Freq')
+        self.top_layout.addWidget(self.Menu)
 
 
         ##################################################
@@ -426,13 +484,19 @@ class MPSK(gr.top_block, Qt.QWidget):
         self.connect((self.blocks_char_to_float_0, 0), (self.qtgui_time_sink_x_0, 0))
         self.connect((self.blocks_char_to_float_0_0, 0), (self.qtgui_time_sink_x_0_0, 0))
         self.connect((self.blocks_char_to_float_0_0_0, 0), (self.blocks_multiply_const_vxx_0, 0))
+        self.connect((self.blocks_complex_to_mag_squared_0, 0), (self.epy_block_0_1, 0))
         self.connect((self.blocks_multiply_const_vxx_0, 0), (self.epy_block_0, 0))
         self.connect((self.blocks_multiply_const_vxx_0, 0), (self.qtgui_time_sink_x_0_0_0, 0))
+        self.connect((self.blocks_multiply_const_vxx_1, 0), (self.qtgui_vector_sink_f_1, 0))
         self.connect((self.blocks_repack_bits_bb_0, 0), (self.blocks_char_to_float_0_0, 0))
         self.connect((self.blocks_repack_bits_bb_0, 0), (self.blocks_char_to_float_0_0_0, 0))
+        self.connect((self.blocks_stream_to_vector_0, 0), (self.fft_vxx_0, 0))
         self.connect((self.epy_block_0, 0), (self.interp_fir_filter_xxx_0, 0))
         self.connect((self.epy_block_0, 0), (self.qtgui_const_sink_x_0, 0))
         self.connect((self.epy_block_0, 0), (self.qtgui_time_sink_x_0_0_0_0, 0))
+        self.connect((self.epy_block_0_1, 0), (self.blocks_multiply_const_vxx_1, 0))
+        self.connect((self.fft_vxx_0, 0), (self.blocks_complex_to_mag_squared_0, 0))
+        self.connect((self.interp_fir_filter_xxx_0, 0), (self.blocks_stream_to_vector_0, 0))
         self.connect((self.interp_fir_filter_xxx_0, 0), (self.qtgui_freq_sink_x_0, 0))
         self.connect((self.interp_fir_filter_xxx_0, 0), (self.qtgui_time_sink_x_0_0_0_0_0, 0))
 
@@ -499,6 +563,7 @@ class MPSK(gr.top_block, Qt.QWidget):
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
+        self.blocks_multiply_const_vxx_1.set_k([1/(1024*self.samp_rate)]*1024)
         self.qtgui_freq_sink_x_0.set_frequency_range(0, self.samp_rate)
         self.qtgui_time_sink_x_0_0_0_0_0.set_samp_rate(self.samp_rate)
 
