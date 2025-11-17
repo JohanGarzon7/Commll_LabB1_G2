@@ -1,9 +1,9 @@
-📡 Lab 6 – Waveform: Modulación Digital
+Lab 6 – Waveform: Modulación Digital
 Raised Cosine, Root Raised Cosine, ISI & Pulse Shaping
 
 Este repositorio contiene el desarrollo completo del Laboratorio 6 sobre conformación de pulsos (waveforming) en sistemas de comunicación digital, implementado en GNU Radio. El objetivo principal es analizar cómo los filtros de Coseno Alzado (Raised Cosine) y Raíz de Coseno Alzado (Root Raised Cosine) afectan el ancho de banda, la eficiencia espectral, la ISI (Intersímbolos) y la calidad del enlace bajo distintos esquemas de modulación y parámetros de roll-off.
 
-📘 Contenido del laboratorio
+Contenido del laboratorio
 
 Implementación de un transmisor digital con:
 
@@ -35,7 +35,7 @@ Validación del criterio Nyquist ISI-free
 
 Comparación RC vs RRC (transmisor vs matched filter)
 
-🛠️ Herramientas utilizadas
+Herramientas utilizadas
 
 GNU Radio 3.x
 
