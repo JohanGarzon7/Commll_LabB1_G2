@@ -5,13 +5,13 @@ Este repositorio contiene el desarrollo completo del Laboratorio 6 sobre conform
 
 Contenido del laboratorio
 
-Implementación de un transmisor digital con:
+-Implementación de un transmisor digital con:
 
 8-PSK
 
 16-QAM
 
-Comparación entre:
+-Comparación entre:
 
 Pulsos rectangulares (sin filtrado)
 
@@ -19,7 +19,7 @@ Raised Cosine (β = 0, 0.5, 1)
 
 Root Raised Cosine (β = 0.5)
 
-Análisis de:
+-Análisis de:
 
 PSD (densidad espectral de potencia)
 
@@ -35,7 +35,7 @@ Validación del criterio Nyquist ISI-free
 
 Comparación RC vs RRC (transmisor vs matched filter)
 
-Herramientas utilizadas
+-Herramientas utilizadas:
 
 GNU Radio 3.x
 
